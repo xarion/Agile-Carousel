@@ -39,7 +39,6 @@
             	ac_group_numbered_buttons = "";
             	ac_thumbnails = "";
             	ac_content_buttons = "";
-            	ac_pause = "";
             	ac_previous_button = "";
             	ac_next_button = "";
             	ac_hover_previous_button = "";
@@ -132,10 +131,6 @@
                 }
 
             } // for
-            ////////////////////////
-            // Pause Button
-            //////////////////////// 
-            ac_pause += "<span class='pause_button slide_button pause' data-options='{\"button_type\":\"pause_button\",\"trigger_type\": \"none\",\"disabled\": false,\"paused\": false}'>Pause</span>";
 
             ////////////////////////
             // Previous Button
@@ -278,10 +273,6 @@
                         // content_buttons
                         if (control_set_array[j] == "content_buttons") {
                             control_set_html += ac_content_buttons;
-                        }
-                        // pause_button
-                        if (control_set_array[j] == "pause_button") {
-                            control_set_html += ac_pause;
                         }
                         // previous_button
                         if (control_set_array[j] == "previous_button") {
@@ -779,25 +770,12 @@
                 ac_timer = setInterval(timer_transition, timer);
             }
 
-            var pause_button = obj.find(".pause_button");
-
-            function pause_slideshow() {
-
-                if(pause_button.length > 0){
-					pause_button.html("play");
-               		pause_button.data("options").paused = true;
-                	pause_button.addClass("play_button");
-				}
-                clearInterval(ac_timer);
-            } // function
-
 
 			/////////////////
 			//////// click button
 			////////////////
 		
 			 $(agile_carousel_buttons_click).click(function(){
-				 pause_slideshow();
 				if(obj.find(':animated').length < 1){
 					transition_slides($(this).data().options);
 				} else {
@@ -826,7 +804,6 @@
 			////////////////
 			
 			$(agile_carousel_buttons_hover).hover(function() {
-				pause_slideshow();
     			if(ac_slides_container.find(':animated').length < 1){
 					transition_slides($(this).data().options);
 
@@ -860,42 +837,12 @@
             ////////////////////////////
 
 
-			 timer_data = {
-                "button_action": "next",
-                "button_type": "pause",
-                "disabled": false,
-                "trigger_type": "ac_click"
-            };
+			 
 
 			
             function timer_transition() {
                 transition_slides(timer_data);
             }
-
-           
-
-            function play_slideshow() {
-                clearInterval(ac_timer);
-                pause_button.html("pause");
-                pause_button.data("options").paused = false;
-                pause_button.addClass("pause_button");
-				pause_button.removeClass("play_button");
-                transition_slides(timer_data);
-                ac_timer = setInterval(timer_transition, timer);
-                return ac_timer;
-            } // function
-            // play/pause button behavior
-            pause_button.click(function () {
-                var $this = $(this);
-                if ($this.data("options").paused === true) {
-                    play_slideshow();
-
-                } else if ($this.data("options").paused === false) {
-                    pause_slideshow();
-                    clearInterval(ac_timer);
-                }
-            }); // click
-
             // hover previous and hover next buttons
             
             $('.hover_previous_next_button').hover(function() {
