@@ -13,7 +13,6 @@
     $.fn.agile_carousel = function (options) {
 
         var defaults = {
-            timer: 0,
             continuous_scrolling: false,
             transition_type: "slide",
             transition_time: 600,
@@ -75,13 +74,10 @@
             var number_slides_visible = options.number_slides_visible;
             var transition_type = options.transition_type;
             var transition_time = options.transition_time;
-            var timer = options.timer;
             var content = "";
             var obj_inner = "";
             var content_button = "";
 			var $this = "";
-			var timer_data = "";
-			var ac_timer = "";
 
             // get the number of slides
             $.each(carousel_data, function (key, value) {
@@ -647,8 +643,6 @@
                                 duration: transition_time
                             });
 
-
-
                         } // if
 
                         /////////////////////////////////
@@ -753,9 +747,6 @@
                 add_selected_class(next_slide_number);
 
             } // transition_slides;
-			
-
-
 
 			/////////////////////
 			///////// button behavior
@@ -765,12 +756,6 @@
             var agile_carousel_buttons_click = obj.find(".ac_click");
             var agile_carousel_buttons_hover = obj.find(".ac_hover");
 			
-            // start timer
-            if(timer !== 0){
-                ac_timer = setInterval(timer_transition, timer);
-            }
-
-
 			/////////////////
 			//////// click button
 			////////////////
@@ -797,7 +782,6 @@
 				} // else
 			
 			}); // click
-			
 			
 			/////////////////
 			//////// hover button
@@ -829,22 +813,7 @@
 					clearInterval($this.data("options").timeout);
 			});
 
-
-            ////////////////////////////
-            ////////////////////////////
-            //////// Timer
-            ////////////////////////////
-            ////////////////////////////
-
-
-			 
-
-			
-            function timer_transition() {
-                transition_slides(timer_data);
-            }
             // hover previous and hover next buttons
-            
             $('.hover_previous_next_button').hover(function() {
                 $(this).find(".hover_previous_next_button_inner").stop().fadeTo("fast", 0.85);
             },
