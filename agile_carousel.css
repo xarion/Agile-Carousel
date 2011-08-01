@@ -29,6 +29,7 @@ font-size: 11px;
 
 .agile_carousel .slides {
 position: absolute;
+margin-top:20px;
 top: 0;
 left: 0;
 }
@@ -47,6 +48,12 @@ float: left;
 
 /*-- default styles for all control sets --*/
 
+.agile_carousel .control_set_container {
+width: 100%;
+position: absolute;
+z-index:6000;
+background-color: #ededeb;
+} 
 .agile_carousel .control_set {
 position: absolute;
 z-index: 4000;
@@ -55,6 +62,7 @@ z-index: 4000;
 /*-- default styles for all button containers --*/
 
 .agile_carousel .button_container {
+
 z-index: 5000;	
 }
 
