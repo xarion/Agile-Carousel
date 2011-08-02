@@ -22,7 +22,8 @@
             control_set_2: "",
             control_set_3: "",
             control_set_4: "",
-            control_set_5: ""
+            control_set_5: "",
+            is_vertical: false
         };
 
         options = $.extend(defaults, options);
@@ -74,16 +75,72 @@
             var number_slides_visible = options.number_slides_visible;
             var transition_type = options.transition_type;
             var transition_time = options.transition_time;
+            var is_vertical = options.is_vertical;
             var content = "";
             var obj_inner = "";
             var content_button = "";
 			var $this = "";
-
+			
             // get the number of slides
             $.each(carousel_data, function (key, value) {
                 number_of_slides++;
             });
-
+            
+            var number_of_slides_vertical = 1;
+            var number_of_slides_horizontal = 1;
+            if(is_vertical) {
+            	number_of_slides_vertical = number_of_slides;
+            } else {
+            	number_of_slides_horizontal = number_of_slides;
+            }
+            function get_slide_axis() {
+            	var axis = "left";
+            	if(is_vertical){
+            		axis = "top";
+            	}
+            	return axis;
+            }
+            
+            function get_static_axis() {
+            	var axis = "top";
+            	if(is_vertical){
+            		axis = "left";
+            	}
+            	return axis;
+            }
+            
+            function get_slide_axis_slide_length() {
+            	var length = slide_width;
+            	if(is_vertical){
+            		length = slide_height;
+            	}
+            	return length;
+            }
+            
+            function get_static_axis_slide_length() {
+            	var length = slider_height;
+            	if(is_vertical){
+            		length = slider_width;
+            	}
+            	return length;
+            }
+            
+            function get_sliding_axis_base() {
+            	var base = "width";
+            	if(is_vertical){
+            		base = "height";
+            	}
+            	return base;
+            }
+            
+            function get_static_axis_base() {
+            	var base = "height";
+            	if(is_vertical){
+            		base = "width";
+            	}
+            	return base;
+            }
+            
             var slide_remainder = number_of_slides % number_slides_visible;
 
             var slide_number_conversion_array = [];
@@ -180,7 +237,7 @@
 
 
                     if (i === 1) {
-                        ac_html += "<div class='slides' style='width: " + slide_width * number_of_slides + "px; height: " + slide_height + "px;'>";
+                        ac_html += "<div class='slides' style='width: " + slide_width * number_of_slides_horizontal + "px; height: " + slide_height * number_of_slides_vertical + "px;'>";
                     } // if
                     if (content) {
                         // render
@@ -472,44 +529,40 @@
             
             // prepare carousel for number_slides_visible = 1
             if (number_slides_visible == 1) {
-                ac_slides.eq(0).css({
-                    "position": "absolute",
-                    "top": 0,
-                    "left": 0
-                });
-                ac_slides.slice(1, number_of_slides).css({
-                    "position": "absolute",
-                    "top": "-5000px",
-                    "left": 0
-                });
-                ac_slides_container.css("width", slide_width + "px");
+                
+                		
+            	ac_slides.eq(0).css("position", "absolute");
+            	ac_slides.eq(0).css(get_static_axis(), 0);
+            	ac_slides.eq(0).css(get_slide_axis, 0);
+                
+            	ac_slides.slice(1, number_of_slides).css("position", "absolute");
+            	ac_slides.slice(1, number_of_slides).css(get_static_axis(), "-5000px");
+            	ac_slides.slice(1, number_of_slides).css(get_slide_axis(), 0);
+                
+                ac_slides_container.css(get_sliding_axis_base(), get_slide_axis_slide_length() + "px");
 
             }
 
             // prepare carousel for number_slides_visible > 1
             if (number_slides_visible > 1) {
 
-                agile_carousel.css("width", number_slides_visible * slide_width + "px");
+                agile_carousel.css(get_sliding_axis_base(), number_slides_visible * get_slide_axis_slide_length() + "px");
 
                 var k = 0;
 
                 for (k = 1; k <= number_of_slides; k++) {
-
-                    ac_slides.eq(k).css({
-                        "position": "absolute",
-                        "top": 0,
-                        "left": slide_width * k + "px"
-
-                    });
+                    ac_slides.eq(k).css("position", "absolute");
+                    ac_slides.eq(k).css(get_static_axis(), 0);
+                    ac_slides.eq(k).css(get_slide_axis(), get_slide_axis_slide_length() * k + "px");
                 } // for
             } // if
 
             var slide_complete = function () {
-                current_slide.css({
-                    "position": "absolute",
-                    "top": "-5000px",
-                    "left": 0
-                });
+                
+            	current_slide.css("position", "absolute");
+            	current_slide.css(get_static_axis(), "-5000px");
+            	current_slide.css(get_slide_axis(), 0);
+                
             };
 
 
@@ -629,13 +682,11 @@
                         /////////////////////////////////
                         if (transition_type == "slide" && number_slides_visible > 1) {
 
-
-                            ac_slides_container.stop().animate({
-                                "left": ((next_slide_number * slide_width) - slide_width) * -1 + "px"
-                            }, {
+                        	var temp = {};
+                        	temp[ get_slide_axis() ] = ((next_slide_number * get_slide_axis_slide_length()) - get_slide_axis_slide_length()) * -1 + "px";
+                            ac_slides_container.stop().animate(temp, {
                                 duration: transition_time
                             });
-
                         } // if
 
                         /////////////////////////////////
@@ -649,38 +700,34 @@
                             var animate_current_slide_to = "";
 
                             if (button_action == "next" || (next_slide_number > current_slide_number) && button_action == "direct") {
-                                next_slide.css({
-                                    top: 0,
-                                    left: slide_width
-                                });
-
-                                animate_current_slide_to = slide_width * -1;
-
+                                next_slide.css(get_static_axis(), 0);
+                                next_slide.css(get_slide_axis(), get_slide_axis_slide_length());
+                                animate_current_slide_to = get_slide_axis_slide_length() * -1;
                             }
 
                             // change slide position - go back
                             if (button_action == "previous" || (next_slide_number < current_slide_number && button_action == "direct")) {
-                                next_slide.css({
-                                    top: 0,
-                                    left: slide_width * -1
-                                });
+                                next_slide.css(get_static_axis(), 0);
+                                next_slide.css(get_slide_axis(), get_slide_axis_slide_length() * -1);
 
-                                animate_current_slide_to = slide_width;
+                                animate_current_slide_to = get_slide_axis_slide_length();
                             }
 
                             // animate slides
 
 
                             //,{  duration:300, complete: fade_complete}
-                            current_slide.stop().animate({
-                                "left": animate_current_slide_to + "px"
-                            }, {
+                            
+                            var temp = {};
+                            temp[ get_slide_axis() ] = animate_current_slide_to + "px";
+                            current_slide.stop().animate(temp, {
                                 duration: transition_time,
                                 complete: slide_complete
                             });
-                            next_slide.stop().animate({
-                                "left": "0px"
-                            }, {
+                            
+                            var temp = {};
+                            temp[ get_slide_axis() ] = "0px";
+                            next_slide.stop().animate(temp, {
                                 duration: transition_time
                             });
                         } // if transition type is slide	
