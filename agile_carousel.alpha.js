@@ -7,235 +7,111 @@
  *
  * 
  */
-
 (function ($) {
 
     $.fn.agile_carousel = function (options) {
 
         var defaults = {
-            continuous_scrolling: false,
             transition_type: "slide",
             transition_time: 600,
-			number_slides_visible: 1,
-			change_on_hover: "",
-            control_set_1: "",
-            control_set_2: "",
-            control_set_3: "",
-            control_set_4: "",
-            control_set_5: "",
+            number_slides_visible: 1,
             is_vertical: false
         };
 
         options = $.extend(defaults, options);
 
-
         return this.each(function () {
+            var number_of_slides = 0,
+                ac_html = "",
+                bd = "",
+                button_action = "",
+                current_slide_number = "",
+                next_slide_number = false,
+                current_slide_index = "",
+                next_slide_index = "",
+                current_slide = "",
+                next_slide = "",
+                carousel_outer_width = options.carousel_outer_width,
+                carousel_outer_height = options.carousel_outer_height,
+                carousel_data = options.carousel_data,
+                slide_width = options.slide_width,
+                slide_height = options.slide_height,
+                persistent_content = options.persistent_content,
+                number_slides_visible = options.number_slides_visible,
+                transition_type = options.transition_type,
+                transition_time = options.transition_time,
+                is_vertical = options.is_vertical,
+                content = "",
+                obj_inner = "",
+                number_of_slides_vertical = 1,
+                number_of_slides_horizontal = 1,
+                slide_remainder = number_of_slides % number_slides_visible,
+                slide_number_conversion_array = [],
+                i,
+                j,
+                k,
+                obj = $(this),
+                key,
+                ac_slides,
+                ac_slides_container,
+                agile_carousel,
+                ac_previous_buttons,
+                ac_previous_buttons_length,
+                ac_next_buttons,
+                previous_button,
+                previous_button_length,
+                next_button,
+                next_button_length,
+                slide_number_conversion_array_last,
+                curr_lookup,
+                animate_current_slide_to,
+                temp;
 
-            var combined_slide_width = 0,
-            	number_of_slides = 0;
-            	ac_html = "";
-            	ac_content = "";
-            	ac_numbered_buttons = "";
-            	ac_group_numbered_buttons = "";
-            	ac_thumbnails = "";
-            	ac_content_buttons = "";
-            	ac_previous_button = "";
-            	ac_next_button = "";
-            	ac_hover_previous_button = "";
-            	ac_hover_next_button = "";
-            	ac_slide_count = "";
-            	ac_current_slide_number = "";
-            	ac_trigger_type = "ac_click";
-            	bd = "";
-            	button_type = "";
-            	trigger_type = "";
-            	button_action = "";
-            	go_direct = "";
-            	ac_disabled = "";
-            	current_slide_number = "";
-            var next_slide_number = false;
-            var current_slide_index = "";
-            var next_slide_index = "";
-            var current_slide = "";
-            var next_slide = "";
-            var continuous_scrolling = options.continuous_scrolling;
-            var carousel_outer_width = options.carousel_outer_width;
-            var carousel_outer_height = options.carousel_outer_height;
-            var carousel_data = options.carousel_data;
-            var change_on_hover = options.change_on_hover;
-            var slide_width = options.slide_width;
-            var slide_height = options.slide_height;
-            var control_set_1 = options.control_set_1;
-            var control_set_2 = options.control_set_2;
-            var control_set_3 = options.control_set_3;
-            var control_set_4 = options.control_set_4;
-            var control_set_5 = options.control_set_5;
-            var no_control_set = options.no_control_set;
-            var persistent_content = options.persistent_content;
-            var number_slides_visible = options.number_slides_visible;
-            var transition_type = options.transition_type;
-            var transition_time = options.transition_time;
-            var is_vertical = options.is_vertical;
-            var content = "";
-            var obj_inner = "";
-            var content_button = "";
-			var $this = "";
-			
             // get the number of slides
-            $.each(carousel_data, function (key, value) {
-                number_of_slides++;
+            $.each(carousel_data, function () {
+                number_of_slides += 1;
             });
-            
-            var number_of_slides_vertical = 1;
-            var number_of_slides_horizontal = 1;
-            if(is_vertical) {
-            	number_of_slides_vertical = number_of_slides;
+
+            if (is_vertical) {
+                number_of_slides_vertical = number_of_slides;
             } else {
-            	number_of_slides_horizontal = number_of_slides;
+                number_of_slides_horizontal = number_of_slides;
             }
+
             function get_slide_axis() {
-            	var axis = "left";
-            	if(is_vertical){
-            		axis = "top";
-            	}
-            	return axis;
+                return is_vertical ? "top" : "left";
             }
-            
+
             function get_static_axis() {
-            	var axis = "top";
-            	if(is_vertical){
-            		axis = "left";
-            	}
-            	return axis;
+                return is_vertical ? "left" : "top";
             }
-            
+
             function get_slide_axis_slide_length() {
-            	var length = slide_width;
-            	if(is_vertical){
-            		length = slide_height;
-            	}
-            	return length;
+                return is_vertical ? slide_height : slide_width;
             }
-            
-            function get_static_axis_slide_length() {
-            	var length = slider_height;
-            	if(is_vertical){
-            		length = slider_width;
-            	}
-            	return length;
-            }
-            
+
             function get_sliding_axis_base() {
-            	var base = "width";
-            	if(is_vertical){
-            		base = "height";
-            	}
-            	return base;
+                return is_vertical ? "height" : "width";
             }
-            
-            function get_static_axis_base() {
-            	var base = "height";
-            	if(is_vertical){
-            		base = "width";
-            	}
-            	return base;
-            }
-            
-            var slide_remainder = number_of_slides % number_slides_visible;
 
-            var slide_number_conversion_array = [];
-            var new_num = "";
-
-            function get_trigger_type(check_me) {
-                if (change_on_hover !== "") {
-                    ac_trigger_type = "ac_click";
-                    var change_on_hover_array = change_on_hover.split(",");
-                    if ($.inArray(check_me, change_on_hover_array) != -1) {
-                        ac_trigger_type = "ac_hover";
-                    }
-                }
-                return ac_trigger_type;
-            } // function
-
-            ////////////////////////
-            // Group Numbered Buttons
-            //////////////////////// 
-
-            var j = 0;
-            var i = 0;
-            for (i = 0; i < number_of_slides; i++) {
-
-                if (i === 0) {
-                    ac_group_numbered_buttons += "<div class='group_numbered_buttons_container button_container'>";
-                } // if
-                var curr_num = Math.floor((i + 1) / number_slides_visible) * number_slides_visible + 1;
-                if (curr_num !== new_num && curr_num <= number_of_slides) {
-                    slide_number_conversion_array[j] = curr_num;
-
-                    ac_group_numbered_buttons += "<div class='slide_number_" + curr_num + " group_numbered_button slide_button " + get_trigger_type("group_numbered_buttons") + "' data-options='{\"button_type\":\"group_numbered_button\",\"button_action\":\"direct\",\"go_to\":" + curr_num + ", \"trigger_type\":\"" + ac_trigger_type + "\",\"disabled\": false}'>" + (j + 1) + "</div>";
-
-                    new_num = curr_num;
-                    
-                    j++;
-                }
-
-                if (i === number_of_slides - 1) {
-                    ac_group_numbered_buttons += "</div>";
-                }
-
+            for (i = 1, j = 0; i < number_of_slides; i += number_slides_visible) {
+                slide_number_conversion_array[j] = i;
+                j += 1;
             } // for
-
-            ////////////////////////
-            // Previous Button
-            //////////////////////// 
-            ac_previous_button += "<span class='previous_next_button previous_button slide_button " + get_trigger_type("previous_button") + "' data-options='{\"button_type\":\"previous_button\",\"button_action\":\"previous\",\"trigger_type\": \"" + ac_trigger_type + "\",\"disabled\": false}'>Prev</span>";
-
-            ////////////////////////
-            // Next Button
-            //////////////////////// 
-            ac_next_button += "<span class='previous_next_button next_button slide_button " + get_trigger_type("next_button") + "' data-options='{\"button_type\":\"next_button\",\"button_action\":\"next\",\"trigger_type\": \"" + ac_trigger_type + "\",\"disabled\": false}'>Next</span>";
-
-            ////////////////////////
-            // Hover Previous Button
-            //////////////////////// 
-            ac_hover_previous_button += "<div class='hover_previous_next_button hover_previous_button slide_button " + get_trigger_type("hover_previous_button") + "' data-options='{\"button_type\":\"hover_previous_button\",\"button_action\":\"previous\",\"trigger_type\": \"" + ac_trigger_type + "\",\"disabled\": false}'><span style='opacity: 0;' class='hover_previous_next_button_inner'>Prev</span></div>";
-
-            ////////////////////////
-            // Hover Next Button
-            //////////////////////// 
-            ac_hover_next_button += "<div class='hover_previous_next_button hover_next_button slide_button " + get_trigger_type("hover_next_button") + "' data-options='{\"button_type\":\"hover_next_button\",\"button_action\":\"next\",\"trigger_type\": \"" + ac_trigger_type + "\",\"disabled\": false}'><span style='opacity: 0;' class='hover_previous_next_button_inner'>Next</span></div>";
-
-            ////////////////////////
-            // Slide Count
-            //////////////////////// 
-            ac_slide_count += "<span class='slide_count'>" + number_of_slides + "</span>";
-
-            ////////////////////////
-            // Current Slide Number
-            //////////////////////// 
-            ac_current_slide_number += "<span class='current_slide_number'>1</span>";
-
             // render beginning of div containers
             ac_html += "<div class='agile_carousel' style='overflow: hidden; position: relative; width: " + carousel_outer_width + "px; height: " + carousel_outer_height + "px;'>";
 
-            var obj = $(this);
             i = 1;
-            for (var key in carousel_data) {
+            for (key in carousel_data) {
 
                 if (carousel_data.hasOwnProperty(key)) {
 
-
                     obj_inner = carousel_data[key];
                     content = obj_inner.content;
-                    var thumbnail_button = obj_inner.thumbnail_button;
-                    content_button = obj_inner.content_button;
-
 
                     ////////////////////////
                     // Slides
                     ////////////////////////
-
-
                     if (i === 1) {
                         ac_html += "<div class='slides' style='width: " + slide_width * number_of_slides_horizontal + "px; height: " + slide_height * number_of_slides_vertical + "px;'>";
                     } // if
@@ -247,141 +123,19 @@
                         ac_html += "</div>";
                     }
 
-
-                    ////////////////////////
-                    // Numbered Buttons
-                    ////////////////////////
-                    if (i == 1) {
-                        ac_numbered_buttons += "<div class='numbered_buttons_container  button_container'>";
-                    } // if
-                    ac_numbered_buttons += "<div class='slide_number_" + i + " numbered_button slide_button " + get_trigger_type("numbered_buttons") + "' data-options='{\"button_type\":\"numbered_button\",\"button_action\":\"direct\",\"go_to\":" + i + ", \"trigger_type\":\"" + ac_trigger_type + "\",\"disabled\": false}'>" + i + "</div>";
-
-                    if (i == number_of_slides) {
-                        ac_numbered_buttons += "</div>";
-                    }
-
-
-
-                    ////////////////////////
-                    // Thumbnails
-                    ////////////////////////						
-                    if (thumbnail_button) {
-
-                        if (i == 1) {
-                            ac_thumbnails += "<div class='thumbnail_buttons_container  button_container'>";
-                        } // if
-                        ac_thumbnails += "<div class='slide_number_" + i + " thumbnail_button slide_button " + get_trigger_type("thumbnails") + "'  data-options='{\"button_type\":\"thumbnail_button\",\"button_action\":\"direct\",\"go_to\":" + i + ",\"trigger_type\": \"" + ac_trigger_type + "\",\"disabled\": false}'>" + thumbnail_button + "</div>";
-
-                        if (i == number_of_slides) {
-                            ac_thumbnails += "</div>";
-                        } // if
-
-                    } // if
-
-                    ////////////////////////
-                    // Content Button
-                    ////////////////////////
-                    if (content_button) {
-
-                        if (i == 1) {
-                            ac_content_buttons += "<div class='content_buttons_container  button_container'>";
-                        } // if
-                        ac_content_buttons += "<div class='slide_number_" + i + " content_button_" + i + " content_button slide_button " + get_trigger_type("content_buttons") + "' data-options='{\"button_type\":\"content_button\",\"button_action\":\"direct\",\"go_to\":" + i + ",\"trigger_type\": \"" + ac_trigger_type + "\",\"disabled\": false}'><div class='content_button_inner'>" + content_button + "</div></div>";
-
-                        if (i == number_of_slides) {
-                            ac_content_buttons += "</div>";
-                        } // if
-                    }
-
-                    i++;
-
-
+                    i += 1;
                 } // if has own property
             } // for
-            var create_control_set = function (set, set_number) {
-                var control_set_html = "";
-                if (set !== "") {
-                    if (set_number) {
-                        control_set_html += "<div class='control_set_" + set_number + " control_set'><div class='control_set_" + set_number + "_inner control_set_inner'>";
-                    }
+            $(".previous_button").data("options", {
+                disabled: false,
+                button_action: "previous"
+            });
 
-                    var control_set_array = set.split(",");
+            $(".next_button").data("options", {
+                disabled: false,
+                button_action: "next"
+            });
 
-                    for (j = 0; j < control_set_array.length; j++) {
-
-                        // numbered_buttons
-                        if (control_set_array[j] == "numbered_buttons") {
-                            control_set_html += ac_numbered_buttons;
-                        }
-
-                        // group_numbered_buttons
-                        if (control_set_array[j] == "group_numbered_buttons") {
-                            control_set_html += ac_group_numbered_buttons;
-                        }
-
-                        // thumbnails
-                        if (control_set_array[j] == "thumbnails") {
-                            control_set_html += ac_thumbnails;
-                        }
-                        // content_buttons
-                        if (control_set_array[j] == "content_buttons") {
-                            control_set_html += ac_content_buttons;
-                        }
-                        // previous_button
-                        if (control_set_array[j] == "previous_button") {
-                            control_set_html += ac_previous_button;
-                        }
-                        // previous_button
-                        if (control_set_array[j] == "next_button") {
-                            control_set_html += ac_next_button;
-                        }
-                        // hover_previous_button
-                        if (control_set_array[j] == "hover_previous_button") {
-                            control_set_html += ac_hover_previous_button;
-                        }
-                        // hover_next_button
-                        if (control_set_array[j] == "hover_next_button") {
-                            control_set_html += ac_hover_next_button;
-                        }
-                        // slide_count
-                        if (control_set_array[j] == "slide_count") {
-                            control_set_html += ac_slide_count;
-                        }
-                        // current_slide_number
-                        if (control_set_array[j] == "current_slide_number") {
-                            control_set_html += ac_current_slide_number;
-                        }
-
-                    } // for
-
-                    if (set_number) {
-                        control_set_html += "</div></div>";
-                    }
-
-                    ac_html += control_set_html;
-
-                } // if
-            }; // function
-
-
-            if (options.control_set_1) {
-                create_control_set(control_set_1, 1);
-            } // if
-            if (options.control_set_2) {
-                create_control_set(control_set_2, 2);
-            } // if
-            if (options.control_set_3) {
-                create_control_set(control_set_3, 3);
-            } // if
-            if (options.control_set_4) {
-                create_control_set(control_set_4, 4);
-            } // if
-            if (options.control_set_5) {
-                create_control_set(control_set_5, 5);
-            } // if
-            if (options.no_control_set) {
-                create_control_set(no_control_set);
-            } // if
             if (persistent_content) {
                 ac_html += persistent_content;
             }
@@ -390,77 +144,50 @@
 
             obj.html(ac_html);
 
-            var ac_slides = obj.find(".slide");
-            var ac_slides_container = obj.find(".slides");
-            var ac_slide_buttons = obj.find(".slide_button");
-            var ac_slide_buttons_length = ac_slide_buttons.length;
-            var agile_carousel = obj.find(".agile_carousel");
-
-            var ac_previous_buttons = obj.find(".previous_button, .hover_previous_button");
-            var ac_previous_buttons_length = ac_previous_buttons.length;
-            var ac_next_buttons = obj.find(".next_button, .hover_next_button");
-
+            ac_slides = obj.find(".slide");
+            ac_slides_container = obj.find(".slides");
+            agile_carousel = obj.find(".agile_carousel");
+            ac_previous_buttons = $(".previous_button");
+            ac_previous_buttons_length = ac_previous_buttons.length;
+            ac_next_buttons = $(".next_button");
             // kludge - above variables not working in disable_buttons function - disabled is undefined in disable_buttons function
-            var previous_button = obj.find(".previous_button");
-            var previous_button_length = previous_button.length;
-            var hover_previous_button = obj.find(".hover_previous_button");
-            var hover_previous_button_length = hover_previous_button.length;
-            var next_button = obj.find(".next_button");
-            var next_button_length = next_button.length;
-            var hover_next_button = obj.find(".hover_next_button");
-            var hover_next_button_length = hover_next_button.length;
+            previous_button = $(".previous_button");
+            previous_button_length = previous_button.length;
+            next_button = $(".next_button");
+            next_button_length = next_button.length;
 
-            
             function disable_buttons(slide_num) {
 
-                if (continuous_scrolling === false && number_slides_visible < 2) {
+                if (number_slides_visible < 2) {
 
                     // if first slide
-                    if (slide_num == 1) {
+                    if (slide_num === 1) {
                         if (previous_button_length > 0) {
                             previous_button.addClass("ac_disabled");
                             previous_button.data("options").disabled = true;
-                        } // if
-                        // error
-                        if (hover_previous_button_length > 0) {
-                            hover_previous_button.addClass("ac_disabled");
-                            hover_previous_button.data("options").disabled = true;
                         } // if
                     } else {
                         if (previous_button_length > 0) {
                             previous_button.removeClass("ac_disabled");
                             previous_button.data("options").disabled = false;
                         } // if
-                        if (hover_previous_button_length > 0) {
-                            hover_previous_button.removeClass("ac_disabled");
-                            hover_previous_button.data("options").disabled = false;
-                        } // if
                     }
 
                     // if last slide
-                    if (slide_num == number_of_slides) {
+                    if (slide_num === number_of_slides) {
                         if (next_button_length > 0) {
                             next_button.addClass("ac_disabled");
                             next_button.data("options").disabled = true;
-                        } // if
-                        if (hover_next_button_length > 0) {
-                            hover_next_button.addClass("ac_disabled");
-                            hover_next_button.data("options").disabled = true;
                         } // if
                     } else {
                         if (next_button_length > 0) {
                             next_button.removeClass("ac_disabled");
                             next_button.data("options").disabled = false;
                         } // if
-                        if (hover_next_button_length > 0) {
-                            hover_next_button.removeClass("ac_disabled");
-                            hover_next_button.data("options").disabled = false;
-                        } // if
                     }
 
                 } // if
-				
-                if (continuous_scrolling === false && number_slides_visible > 1) {
+                if (number_slides_visible > 1) {
 
                     // if first slide
                     if (slide_num <= number_slides_visible) {
@@ -468,18 +195,10 @@
                             previous_button.addClass("ac_disabled");
                             previous_button.data("options").disabled = true;
                         } // if
-                        if (hover_previous_button_length > 0) {
-                            hover_previous_button.addClass("ac_disabled");
-                            hover_previous_button.data("options").disabled = true;
-                        } // if
                     } else {
                         if (previous_button_length > 0) {
                             previous_button.removeClass("ac_disabled");
                             previous_button.data("options").disabled = false;
-                        } // if
-                        if (hover_previous_button_length > 0) {
-                            hover_previous_button.removeClass("ac_disabled");
-                            hover_previous_button.data("options").disabled = false;
                         } // if
                     }
 
@@ -489,94 +208,44 @@
                             next_button.addClass("ac_disabled");
                             next_button.data("options").disabled = true;
                         } // if
-                        if (hover_next_button_length > 0) {
-                            hover_next_button.addClass("ac_disabled");
-                            hover_next_button.data("options").disabled = true;
-                        } // if
                     } else {
                         if (next_button_length > 0) {
                             next_button.removeClass("ac_disabled");
                             next_button.data("options").disabled = false;
                         } // if
-                        if (hover_next_button_length > 0) {
-                            hover_next_button.removeClass("ac_disabled");
-                            hover_next_button.data("options").disabled = false;
-                        } // if
                     }
 
                 } // if
-
             } // function
-
-            var current_slide_number_display = obj.find(".current_slide_number");
-            var current_slide_number_display_length = current_slide_number_display.length;
-
-            // update slide number
-
-            function update_current_slide_number(slide_num) {
-                if (current_slide_number_display_length > 0) {
-                    current_slide_number_display.html(slide_num);
-                }
-            }
-
-            // add/remove class for buttons corresponding to selected slides
-
-
-            function add_selected_class(slide_num) {
-                obj.find(".ac_selected").removeClass("ac_selected");
-                obj.find(".slide_number_" + slide_num).addClass("ac_selected");
-            }
-            
             // prepare carousel for number_slides_visible = 1
-            if (number_slides_visible == 1) {
-                
-                		
-            	ac_slides.eq(0).css("position", "absolute");
-            	ac_slides.eq(0).css(get_static_axis(), 0);
-            	ac_slides.eq(0).css(get_slide_axis, 0);
-                
-            	ac_slides.slice(1, number_of_slides).css("position", "absolute");
-            	ac_slides.slice(1, number_of_slides).css(get_static_axis(), "-5000px");
-            	ac_slides.slice(1, number_of_slides).css(get_slide_axis(), 0);
-                
-                ac_slides_container.css(get_sliding_axis_base(), get_slide_axis_slide_length() + "px");
+            if (number_slides_visible === 1) {
+                ac_slides.eq(0).css("position", "absolute");
+                ac_slides.eq(0).css(get_static_axis(), 0);
+                ac_slides.eq(0).css(get_slide_axis, 0);
 
+                ac_slides.slice(1, number_of_slides).css("position", "absolute");
+                ac_slides.slice(1, number_of_slides).css(get_static_axis(), "-5000px");
+                ac_slides.slice(1, number_of_slides).css(get_slide_axis(), 0);
+
+                ac_slides_container.css(get_sliding_axis_base(), get_slide_axis_slide_length() + "px");
             }
 
             // prepare carousel for number_slides_visible > 1
             if (number_slides_visible > 1) {
-
                 agile_carousel.css(get_sliding_axis_base(), number_slides_visible * get_slide_axis_slide_length() + "px");
 
-                var k = 0;
-
-                for (k = 1; k <= number_of_slides; k++) {
+                for (k = 1; k <= number_of_slides; k += 1) {
                     ac_slides.eq(k).css("position", "absolute");
                     ac_slides.eq(k).css(get_static_axis(), 0);
                     ac_slides.eq(k).css(get_slide_axis(), get_slide_axis_slide_length() * k + "px");
                 } // for
             } // if
-
-            var slide_complete = function () {
-                
-            	current_slide.css("position", "absolute");
-            	current_slide.css(get_static_axis(), "-5000px");
-            	current_slide.css(get_slide_axis(), 0);
-                
-            };
-
-
             // prepare carousel for all
             disable_buttons(1);
-            update_current_slide_number(1);
-            add_selected_class(1);
 
-            // if a hoveer transition button is hovered over for 1 seconds, then simulate click
-            button_type = bd.button_type;
             current_slide_number = 1;
 
-
-            var slide_number_conversion_array_last = slide_number_conversion_array[slide_number_conversion_array.length - 1];
+            slide_number_conversion_array_last = slide_number_conversion_array[slide_number_conversion_array.length - 1];
 
             ///////////////////////////////
             ///////////////////////////////
@@ -591,20 +260,15 @@
 
                 if (ac_disabled !== true) {
 
-                    button_type = bd.button_type;
-                    trigger_type = bd.trigger_type;
                     button_action = bd.button_action;
-                    var go_to = bd.go_to;
                     ac_disabled = bd.disabled;
 
                     if (next_slide_number !== false) {
                         current_slide_number = next_slide_number;
                     }
 
-
                     current_slide_index = current_slide_number - 1;
                     current_slide = $(ac_slides).eq(current_slide_index);
-
 
                     // calculate the next_slide_number
                     ///////////////////////////
@@ -613,19 +277,19 @@
                     ///////////////////////////
                     ///////////////////////////
                     if (number_slides_visible < 2) {
-                        if (button_action == "next" && current_slide_number < number_of_slides) {
+                        if (button_action === "next" && current_slide_number < number_of_slides) {
                             next_slide_number = current_slide_number + 1;
-                        } else if (button_action == "next" && current_slide_number == number_of_slides) {
+                        } else if (button_action === "next" && current_slide_number === number_of_slides) {
                             next_slide_number = 1;
                         }
 
 
                         // go back
-                        if (button_action == "previous" && current_slide_number > 1) {
+                        if (button_action === "previous" && current_slide_number > 1) {
                             next_slide_number = current_slide_number - 1;
 
                             // go to last slide position
-                        } else if (button_action == "previous" && current_slide_number == 1) {
+                        } else if (button_action === "previous" && current_slide_number === 1) {
                             next_slide_number = number_of_slides;
                         }
 
@@ -636,77 +300,60 @@
                     ///////////////////////////
                     ///////////////////////////
                     if (number_slides_visible > 1) {
-
-
-                        if (button_action == "next" && current_slide_number < (number_of_slides - number_slides_visible + slide_remainder)) {
-
-                            next_slide_number = slide_number_conversion_array[Math.ceil(current_slide_number / number_slides_visible)];
-
-
-                        } else if (button_action == "next" && current_slide_number >= (number_of_slides - number_slides_visible + slide_remainder) && number_slides_visible > 1) {
-                            next_slide_number = 1;
-
+                        if (button_action === "next") {
+                            if (current_slide_number < (number_of_slides - number_slides_visible + slide_remainder)) {
+                                next_slide_number = slide_number_conversion_array[Math.ceil(current_slide_number / number_slides_visible)];
+                            } else if (number_slides_visible > 1) {
+                                next_slide_number = 1;
+                            }
                         }
 
                         // go back
-                        if (button_action == "previous" && current_slide_number > number_slides_visible && number_slides_visible > 1) {
-                            var curr_lookup = Math.floor(current_slide_number / number_slides_visible);
-                            curr_lookup = curr_lookup - 1;
-                            next_slide_number = slide_number_conversion_array[curr_lookup];
-
-                            // go to last slide position
-                        } else if (button_action == "previous" && current_slide_number <= number_slides_visible && number_slides_visible > 1) {
-                            next_slide_number = slide_number_conversion_array_last;
+                        if (button_action === "previous" && number_slides_visible > 1) {
+                            if (current_slide_number > number_slides_visible) {
+                                curr_lookup = Math.floor(current_slide_number / number_slides_visible);
+                                curr_lookup = curr_lookup - 1;
+                                next_slide_number = slide_number_conversion_array[curr_lookup];
+                                // go to last slide position
+                            } else {
+                                next_slide_number = slide_number_conversion_array_last;
+                            }
                         }
-
                     } // if
-                    if (button_action == "direct") {
-                        next_slide_number = go_to;
-                    }
-
-
                     next_slide_index = next_slide_number - 1;
                     next_slide = $(ac_slides).eq(next_slide_index);
 
-                    add_selected_class(next_slide_number);
-                    update_current_slide_number(next_slide_number);
-
-
-                    if (next_slide_index != current_slide_index) {
-
-
+                    if (next_slide_index !== current_slide_index) {
                         /////////////////////////////////
                         /////////////////////////////////
                         ///// Sliding Transition - more than one slide visible
                         /////////////////////////////////
                         /////////////////////////////////
-                        if (transition_type == "slide" && number_slides_visible > 1) {
-
-                        	var temp = {};
-                        	temp[ get_slide_axis() ] = ((next_slide_number * get_slide_axis_slide_length()) - get_slide_axis_slide_length()) * -1 + "px";
+                        if (transition_type === "slide" && number_slides_visible > 1) {
+                            temp = {};
+                            temp[get_slide_axis()] = ((next_slide_number * get_slide_axis_slide_length()) - get_slide_axis_slide_length()) * -1 + "px";
                             ac_slides_container.stop().animate(temp, {
                                 duration: transition_time
                             });
                         } // if
-
                         /////////////////////////////////
                         /////////////////////////////////
                         ///// Sliding Transition - 1 slide visible
                         /////////////////////////////////
                         /////////////////////////////////
-                        if (transition_type == "slide" && number_slides_visible == 1) {
+                        if (transition_type === "slide" && number_slides_visible === 1) {
 
                             // change slide position - go forward
-                            var animate_current_slide_to = "";
+                            animate_current_slide_to = "";
 
-                            if (button_action == "next" || (next_slide_number > current_slide_number) && button_action == "direct") {
+                            if (button_action === "next" || (next_slide_number > current_slide_number)) {
                                 next_slide.css(get_static_axis(), 0);
                                 next_slide.css(get_slide_axis(), get_slide_axis_slide_length());
                                 animate_current_slide_to = get_slide_axis_slide_length() * -1;
                             }
 
                             // change slide position - go back
-                            if (button_action == "previous" || (next_slide_number < current_slide_number && button_action == "direct")) {
+                            if (button_action === "previous" || (next_slide_number < current_slide_number)) {
                                 next_slide.css(get_static_axis(), 0);
                                 next_slide.css(get_slide_axis(), get_slide_axis_slide_length() * -1);
 
@@ -714,105 +361,35 @@
                             }
 
                             // animate slides
-
-
                             //,{  duration:300, complete: fade_complete}
-                            
-                            var temp = {};
-                            temp[ get_slide_axis() ] = animate_current_slide_to + "px";
+                            temp = {};
+                            temp[get_slide_axis()] = animate_current_slide_to + "px";
                             current_slide.stop().animate(temp, {
                                 duration: transition_time,
-                                complete: slide_complete
+                                complete: function () {
+                                    current_slide.css("position", "absolute");
+                                    current_slide.css(get_static_axis(), "-5000px");
+                                    current_slide.css(get_slide_axis(), 0);
+                                }
                             });
-                            
-                            var temp = {};
-                            temp[ get_slide_axis() ] = "0px";
+
+                            temp = {};
+                            temp[get_slide_axis()] = "0px";
                             next_slide.stop().animate(temp, {
                                 duration: transition_time
                             });
                         } // if transition type is slide	
                     } // if current slide is not the next slide
                 } // if slide button is not disabled && transition complete
-
                 disable_buttons(next_slide_number);
-                add_selected_class(next_slide_number);
 
             } // transition_slides;
-
-			/////////////////////
-			///////// button behavior
-			////////////////////
-			
-			
-            var agile_carousel_buttons_click = obj.find(".ac_click");
-            var agile_carousel_buttons_hover = obj.find(".ac_hover");
-			
-			/////////////////
-			//////// click button
-			////////////////
-		
-			 $(agile_carousel_buttons_click).click(function(){
-				if(obj.find(':animated').length < 1){
-					transition_slides($(this).data().options);
-				} else {
-					$this = $(this);
-					// don't use timer on next & previous buttons... causes strage, infinite cycle
-					if($this.data("options").button_action != "next" && $this.data("options").button_action != "previous") {
-							function check_transition(){
-									
-									if(ac_slides_container.find(':animated').length < 1){
-										transition_slides($this.data().options);
-										clearInterval($this.data("options").timeout);
-									} // if
-								} // function
-								
-							t = setInterval(check_transition,30);	
-								
-							$this.data("options").timeout = t;
-					}// if
-				} // else
-			
-			}); // click
-			
-			/////////////////
-			//////// hover button
-			////////////////
-			
-			$(agile_carousel_buttons_hover).hover(function() {
-    			if(ac_slides_container.find(':animated').length < 1){
-					transition_slides($(this).data().options);
-
-				} else {
-						$this = $(this);
-						
-						function check_transition(){
-								
-								if(ac_slides_container.find(':animated').length < 1){
-									transition_slides($this.data().options);
-									clearInterval($this.data("options").timeout);
-								} // if
-							} // function
-							
-						t = setInterval(check_transition,30);	
-							
-						$this.data("options").timeout = t;
-					
-					} // else
-				
-				}, function() {
-    				$this = $(this);
-					clearInterval($this.data("options").timeout);
-			});
-
-            // hover previous and hover next buttons
-            $('.hover_previous_next_button').hover(function() {
-                $(this).find(".hover_previous_next_button_inner").stop().fadeTo("fast", 0.85);
-            },
-            // function
-            function() {
-                $(this).find(".hover_previous_next_button_inner").stop().fadeTo("fast", 0.00);
-            }); // hover
-
+            $(".previous_button").click(function () {
+                transition_slides($(this).data().options);
+            }); // click
+            $(".next_button").click(function () {
+                transition_slides($(this).data().options);
+            }); // click
         }); // each
     }; // function
 })(jQuery);
