@@ -247,6 +247,82 @@
 
             slide_number_conversion_array_last = slide_number_conversion_array[slide_number_conversion_array.length - 1];
 
+            function slide_it(number, isDirect) {
+                if (isDirect === true) {
+                    if (next_slide_number !== false) {
+                        current_slide_number = next_slide_number;
+                    }
+                    current_slide_index = current_slide_number - 1;
+                    current_slide = $(ac_slides).eq(current_slide_index);
+                }
+                next_slide_number = number;
+                next_slide_index = next_slide_number - 1;
+                next_slide = $(ac_slides).eq(next_slide_index);
+
+                if (next_slide_index !== current_slide_index) {
+                    /////////////////////////////////
+                    /////////////////////////////////
+                    ///// Sliding Transition - more than one slide visible
+                    /////////////////////////////////
+                    /////////////////////////////////
+                    if (transition_type === "slide" && number_slides_visible > 1) {
+                        temp = {};
+                        temp[get_slide_axis()] = ((next_slide_number * get_slide_axis_slide_length()) - get_slide_axis_slide_length()) * -1 + "px";
+                        ac_slides_container.stop().animate(temp, {
+                            duration: transition_time
+                        });
+                    } // if
+                    /////////////////////////////////
+                    /////////////////////////////////
+                    ///// Sliding Transition - 1 slide visible
+                    /////////////////////////////////
+                    /////////////////////////////////
+                    if (transition_type === "slide" && number_slides_visible === 1) {
+
+                        // change slide position - go forward
+                        animate_current_slide_to = "";
+
+                        if (button_action === "next" || (next_slide_number > current_slide_number)) {
+                            next_slide.css(get_static_axis(), 0);
+                            next_slide.css(get_slide_axis(), get_slide_axis_slide_length());
+                            animate_current_slide_to = get_slide_axis_slide_length() * -1;
+                        }
+
+                        // change slide position - go back
+                        if (button_action === "previous" || (next_slide_number < current_slide_number)) {
+                            next_slide.css(get_static_axis(), 0);
+                            next_slide.css(get_slide_axis(), get_slide_axis_slide_length() * -1);
+
+                            animate_current_slide_to = get_slide_axis_slide_length();
+                        }
+
+                        // animate slides
+                        //,{  duration:300, complete: fade_complete}
+                        temp = {};
+                        temp[get_slide_axis()] = animate_current_slide_to + "px";
+                        current_slide.stop().animate(temp, {
+                            duration: transition_time,
+                            complete: function () {
+                                current_slide.css("position", "absolute");
+                                current_slide.css(get_static_axis(), "-5000px");
+                                current_slide.css(get_slide_axis(), 0);
+                            }
+                        });
+
+                        temp = {};
+                        temp[get_slide_axis()] = "0px";
+                        next_slide.stop().animate(temp, {
+                            duration: transition_time
+                        });
+                    } // if transition type is slide	
+                } // if current slide is not the next slide
+            }
+
+            function reset() {
+                slide_it(1, true);
+                disable_buttons(1);
+            }
+
             ///////////////////////////////
             ///////////////////////////////
             ///////// Transition Slides
@@ -320,70 +396,14 @@
                             }
                         }
                     } // if
-                    next_slide_index = next_slide_number - 1;
-                    next_slide = $(ac_slides).eq(next_slide_index);
-
-                    if (next_slide_index !== current_slide_index) {
-                        /////////////////////////////////
-                        /////////////////////////////////
-                        ///// Sliding Transition - more than one slide visible
-                        /////////////////////////////////
-                        /////////////////////////////////
-                        if (transition_type === "slide" && number_slides_visible > 1) {
-                            temp = {};
-                            temp[get_slide_axis()] = ((next_slide_number * get_slide_axis_slide_length()) - get_slide_axis_slide_length()) * -1 + "px";
-                            ac_slides_container.stop().animate(temp, {
-                                duration: transition_time
-                            });
-                        } // if
-                        /////////////////////////////////
-                        /////////////////////////////////
-                        ///// Sliding Transition - 1 slide visible
-                        /////////////////////////////////
-                        /////////////////////////////////
-                        if (transition_type === "slide" && number_slides_visible === 1) {
-
-                            // change slide position - go forward
-                            animate_current_slide_to = "";
-
-                            if (button_action === "next" || (next_slide_number > current_slide_number)) {
-                                next_slide.css(get_static_axis(), 0);
-                                next_slide.css(get_slide_axis(), get_slide_axis_slide_length());
-                                animate_current_slide_to = get_slide_axis_slide_length() * -1;
-                            }
-
-                            // change slide position - go back
-                            if (button_action === "previous" || (next_slide_number < current_slide_number)) {
-                                next_slide.css(get_static_axis(), 0);
-                                next_slide.css(get_slide_axis(), get_slide_axis_slide_length() * -1);
-
-                                animate_current_slide_to = get_slide_axis_slide_length();
-                            }
-
-                            // animate slides
-                            //,{  duration:300, complete: fade_complete}
-                            temp = {};
-                            temp[get_slide_axis()] = animate_current_slide_to + "px";
-                            current_slide.stop().animate(temp, {
-                                duration: transition_time,
-                                complete: function () {
-                                    current_slide.css("position", "absolute");
-                                    current_slide.css(get_static_axis(), "-5000px");
-                                    current_slide.css(get_slide_axis(), 0);
-                                }
-                            });
-
-                            temp = {};
-                            temp[get_slide_axis()] = "0px";
-                            next_slide.stop().animate(temp, {
-                                duration: transition_time
-                            });
-                        } // if transition type is slide	
-                    } // if current slide is not the next slide
+                    slide_it(next_slide_number);
                 } // if slide button is not disabled && transition complete
                 disable_buttons(next_slide_number);
 
             } // transition_slides;
+            $(".reset_button").click(function () {
+                reset();
+            }); // click
             $(".previous_button").click(function () {
                 transition_slides($(this).data().options);
             }); // click
