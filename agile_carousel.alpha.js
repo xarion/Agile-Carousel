@@ -15,7 +15,11 @@
             transition_type: "slide",
             transition_time: 600,
             number_slides_visible: 1,
-            is_vertical: false
+            is_vertical: false,
+            get_reset: null,
+            previous_button_selector: ".previous_button",
+            next_button_selector: ".next_button",
+            reset_button_selector: ".reset_button",
         };
 
         options = $.extend(defaults, options);
@@ -41,6 +45,9 @@
                 transition_type = options.transition_type,
                 transition_time = options.transition_time,
                 is_vertical = options.is_vertical,
+                previous_button_selector = options.previous_button_selector,
+                next_button_selector = options.next_button_selector,
+                reset_button_selector = options.reset_button_selector,
                 content = "",
                 obj_inner = "",
                 number_of_slides_vertical = 1,
@@ -67,6 +74,9 @@
                 animate_current_slide_to,
                 temp;
 
+            if (options.get_reset !== null) {
+                options.get_reset(reset);
+            }
             // get the number of slides
             $.each(carousel_data, function () {
                 number_of_slides += 1;
@@ -126,12 +136,12 @@
                     i += 1;
                 } // if has own property
             } // for
-            $(".previous_button").data("options", {
+            $(previous_button_selector).data("options", {
                 disabled: false,
                 button_action: "previous"
             });
 
-            $(".next_button").data("options", {
+            $(next_button_selector).data("options", {
                 disabled: false,
                 button_action: "next"
             });
@@ -147,13 +157,13 @@
             ac_slides = obj.find(".slide");
             ac_slides_container = obj.find(".slides");
             agile_carousel = obj.find(".agile_carousel");
-            ac_previous_buttons = $(".previous_button");
+            ac_previous_buttons = $(previous_button_selector);
             ac_previous_buttons_length = ac_previous_buttons.length;
-            ac_next_buttons = $(".next_button");
+            ac_next_buttons = $(next_button_selector);
             // kludge - above variables not working in disable_buttons function - disabled is undefined in disable_buttons function
-            previous_button = $(".previous_button");
+            previous_button = $(previous_button_selector);
             previous_button_length = previous_button.length;
-            next_button = $(".next_button");
+            next_button = $(next_button_selector);
             next_button_length = next_button.length;
 
             function disable_buttons(slide_num) {
@@ -401,13 +411,13 @@
                 disable_buttons(next_slide_number);
 
             } // transition_slides;
-            $(".reset_button").click(function () {
+            $(reset_button_selector).click(function () {
                 reset();
             }); // click
-            $(".previous_button").click(function () {
+            $(previous_button_selector).click(function () {
                 transition_slides($(this).data().options);
             }); // click
-            $(".next_button").click(function () {
+            $(next_button_selector).click(function () {
                 transition_slides($(this).data().options);
             }); // click
         }); // each

@@ -4,6 +4,7 @@
 		<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.6.0/jquery.js" type="text/javascript"></script>
 		<script src="../agile_carousel.alpha.js" type="text/javascript"></script>
 		<script type="text/javascript">
+			var my_reset;
 		    $.getJSON("agile_carousel_data.php", function(data) {
 		        $(document).ready(function(){
 		            $("#multiple_slides_visible").agile_carousel({
@@ -16,7 +17,11 @@
 		                number_slides_visible: 3,
 		                transition_time: 330,
 		                persistent_content: "",
-		                is_vertical: true
+		                is_vertical: true,
+				get_reset: function (reset){
+                                    my_reset = reset;
+				},
+                                previous_button_selector: ".pbutton"
 		            });
 		        });
 		    });
@@ -25,11 +30,13 @@
 	<body>
 		<div style="float:left" class="slideshow" id="multiple_slides_visible"></div>
 <div style="float:right">
-<span class='previous_button'>Prev</span>
+<span class='pbutton'>Prev</span>
 <span class='next_button'>Next</span>
 
 <a class='previous_button'>Another Prev</a>
 <a class='reset_button'>RESET</a>
+
+<a onclick="my_reset(); return false">MY RESET</a>
 </div>
 	</body>
 </html>
