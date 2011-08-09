@@ -52,7 +52,7 @@
                 obj_inner = "",
                 number_of_slides_vertical = 1,
                 number_of_slides_horizontal = 1,
-                slide_remainder = number_of_slides % number_slides_visible,
+                slide_remainder,
                 slide_number_conversion_array = [],
                 i,
                 j,
@@ -82,6 +82,8 @@
                 number_of_slides += 1;
             });
 
+            slide_remainder = number_of_slides % number_slides_visible;
+
             if (is_vertical) {
                 number_of_slides_vertical = number_of_slides;
             } else {
@@ -104,7 +106,7 @@
                 return is_vertical ? "height" : "width";
             }
 
-            for (i = 1, j = 0; i < number_of_slides; i += number_slides_visible) {
+            for (i = 1, j = 0; i <= number_of_slides; i += number_slides_visible) {
                 slide_number_conversion_array[j] = i;
                 j += 1;
             } // for
