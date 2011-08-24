@@ -213,7 +213,10 @@
                             previous_button.data("options").disabled = false;
                         } // if
                     }
-
+					
+					//5 visible_slides and 4 number_of_slides cause a bug
+					if((number_of_slides % number_slides_visible)==(number_slides_visible - 1)){slide_num=slide_num+2;}
+					
                     // if last slide
                     if (slide_num >= (number_of_slides - number_slides_visible + slide_remainder)) {
                         if (next_button_length > 0) {
