@@ -19,7 +19,7 @@
             get_reset: null,
             previous_button_selector: ".previous_button",
             next_button_selector: ".next_button",
-            reset_button_selector: ".reset_button",
+            reset_button_selector: ".reset_button"
         };
 
         options = $.extend(defaults, options);
@@ -74,9 +74,7 @@
                 animate_current_slide_to,
                 temp;
 
-            if (options.get_reset !== null) {
-                options.get_reset(reset);
-            }
+            
             // get the number of slides
             $.each(carousel_data, function () {
                 number_of_slides += 1;
@@ -215,7 +213,9 @@
                     }
 					
 					//5 visible_slides and 4 number_of_slides cause a bug
-					if((number_of_slides % number_slides_visible)==(number_slides_visible - 1)){slide_num=slide_num+2;}
+					if ((number_of_slides % number_slides_visible) === (number_slides_visible - 1)) {
+						slide_num = slide_num + 2;
+					}
 					
                     // if last slide
                     if (slide_num >= (number_of_slides - number_slides_visible + slide_remainder)) {
@@ -337,7 +337,11 @@
                 slide_it(1, true);
                 disable_buttons(1);
             }
-
+            
+            if (options.get_reset !== null) {
+                options.get_reset(reset);
+            }
+            
             ///////////////////////////////
             ///////////////////////////////
             ///////// Transition Slides
