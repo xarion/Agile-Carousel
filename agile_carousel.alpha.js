@@ -431,4 +431,4 @@
             }); // click
         }); // each
     }; // function
-})(jQuery);
+}(jQuery));
